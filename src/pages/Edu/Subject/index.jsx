@@ -3,16 +3,47 @@ import React, { Component } from "react";
 import { Button, Table } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
+import {reqGetSubjectList} from '@api/edu/subject'
+
 import "./index.less";
 export default class Subject extends Component {
+
+  state = {
+    subjects: {
+      total: 0,
+      items: [],
+    },
+  }
+
+  componentDidMount(){
+    this.getSubjectList(1, 10)
+  }
+
+  getSubjectList = async (page, limit) => {
+    const result = await reqGetSubjectList(page, limit)
+    // 更新数据
+    this.setState({
+      subjects: result
+    })
+  }
+  changeSizeList = (current, size) => {
+
+  }
+
   render() {
+    const {subjects} = this.state
+    
     const columns = [
-      { title: "分类名称", dataIndex: "name", key: "name" },
+      { 
+        title: "分类名称",
+        dataIndex: "title",
+        key: "title" 
+      },
       {
         title: "操作",
         width: 200,
         dataIndex: "",
-        key: "x",
+        key: "action",
         render: () => (
           <>
             <Button type="primary" className="subject-btn">
@@ -26,39 +57,6 @@ export default class Subject extends Component {
       },
     ];
 
-    const data = [
-      {
-        key: 1,
-        name: "John Brown",
-        age: 32,
-        address: "New York No. 1 Lake Park",
-        description:
-          "My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park.",
-      },
-      {
-        key: 2,
-        name: "Jim Green",
-        age: 42,
-        address: "London No. 1 Lake Park",
-        description:
-          "My name is Jim Green, I am 42 years old, living in London No. 1 Lake Park.",
-      },
-      {
-        key: 3,
-        name: "Not Expandable",
-        age: 29,
-        address: "Jiangsu No. 1 Lake Park",
-        description: "This not expandable",
-      },
-      {
-        key: 4,
-        name: "Joe Black",
-        age: 32,
-        address: "Sidney No. 1 Lake Park",
-        description:
-          "My name is Joe Black, I am 32 years old, living in Sidney No. 1 Lake Park.",
-      },
-    ];
     return (
       <div className="subject">
         <Button type="primary" className="subject-btn">
@@ -73,7 +71,17 @@ export default class Subject extends Component {
             ),
             rowExpandable: (record) => record.name !== "Not Expandable",
           }}
-          dataSource={data}
+          dataSource={subjects.items}  // 决定每一行显示的数据
+          rowKey="_id"   //   key
+          pagination = {{
+            total: subjects.total, // 总数
+            showQuickJumper: true, // 是否显示快速跳转
+            showSizeChanger: true, // 是否显示修改每页显示数量
+            pageSizeOptions: ["5", "10", "15", "20"],
+            defaultPageSize: 10,
+            onChange: this.getSubjectList, // 页码发生变化触发的回调
+            onShowSizeChange: this.changeSizeList
+          }}
         />
         ,
       </div>
