@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 app.get("/admin/edu/subject/get/:parentId", (req, res, next) => {
 
   const { parentId } = req.params;
-  const total = Random.integer(1, 5)
+  const total = Random.integer(0, 5)
   // mock 数据
   const data = Mock.mock({
     total,// 以某个的范围取一个随机整数
@@ -40,7 +40,12 @@ app.get("/admin/edu/subject/get/:parentId", (req, res, next) => {
         }
     ]
   })
-  console.log(data);
+  // console.log(data);
+  if (total === 1) {
+    // 当长度为1时，返回值是对象不是数组
+    // 此时需要修改成数组~
+    data.items = [data.items];
+  }
   /*
   二级分类
   {

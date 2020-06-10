@@ -23,7 +23,7 @@ const getSubsubjectListSync = (data) => ({
 export const getSubsubjectList = (parentId) => {
     return (dispatch) => {
         return reqGetSubsubjectList(parentId).then((response) => {
-            console.log(response);
+            // console.log(response);
           dispatch(
             getSubsubjectListSync({ parentId, subSubjectList: response.items })
           );
