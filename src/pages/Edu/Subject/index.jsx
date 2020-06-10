@@ -1,43 +1,30 @@
 import React, { Component } from "react";
 
-import { Button, Table } from "antd";
+import { Button, Table, Tooltip } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-
-import {reqGetSubjectList} from '@api/edu/subject'
-
+import { connect } from "react-redux"
+import { getSubjectList } from "./redux/actions";
 import "./index.less";
-export default class Subject extends Component {
 
-  state = {
-    subjects: {
-      total: 0,
-      items: [],
-    },
-  }
-
-  componentDidMount(){
-    this.getSubjectList(1, 10)
-  }
-
-  getSubjectList = async (page, limit) => {
-    const result = await reqGetSubjectList(page, limit)
-    // 更新数据
-    this.setState({
-      subjects: result
-    })
-  }
-  changeSizeList = (current, size) => {
-
+@connect(
+  (state) => ({
+    subjectList: state.subjectList,
+  }),
+  { getSubjectList }
+)
+class Subject extends Component {
+  componentDidMount() {
+    this.props.getSubjectList(1, 10);
   }
 
   render() {
-    const {subjects} = this.state
-    
+    const { subjectList, getSubjectList } = this.props;
+
     const columns = [
-      { 
+      {
         title: "分类名称",
         dataIndex: "title",
-        key: "title" 
+        key: "title",
       },
       {
         title: "操作",
@@ -46,12 +33,20 @@ export default class Subject extends Component {
         key: "action",
         render: () => (
           <>
-            <Button type="primary" className="subject-btn">
-              <EditOutlined />
-            </Button>
-            <Button type="danger" className="subject-btn">
-              <DeleteOutlined />
-            </Button>
+            <Tooltip placement="top" title="更新课程分类">
+              <Button
+                type="primary"
+                className="subject-btn"
+                style={{ marginTop: "10px" }}
+              >
+                <EditOutlined />
+              </Button>
+            </Tooltip>
+            <Tooltip placement="top" title="删除课程分类">
+              <Button type="danger" className="subject-btn">
+                <DeleteOutlined />
+              </Button>
+            </Tooltip>
           </>
         ),
       },
@@ -59,7 +54,11 @@ export default class Subject extends Component {
 
     return (
       <div className="subject">
-        <Button type="primary" className="subject-btn">
+        <Button
+          type="primary"
+          className="subject-btn"
+          style={{ marginBottom: "20px" }}
+        >
           <PlusOutlined />
           新建
         </Button>
@@ -71,16 +70,16 @@ export default class Subject extends Component {
             ),
             rowExpandable: (record) => record.name !== "Not Expandable",
           }}
-          dataSource={subjects.items}  // 决定每一行显示的数据
-          rowKey="_id"   //   key
-          pagination = {{
-            total: subjects.total, // 总数
+          dataSource={subjectList.items} // 决定每一行显示的数据
+          rowKey="_id" //   key
+          pagination={{
+            total: subjectList.total, // 总数
             showQuickJumper: true, // 是否显示快速跳转
             showSizeChanger: true, // 是否显示修改每页显示数量
             pageSizeOptions: ["5", "10", "15", "20"],
             defaultPageSize: 10,
-            onChange: this.getSubjectList, // 页码发生变化触发的回调
-            onShowSizeChange: this.changeSizeList
+            onChange: getSubjectList, // 页码发生变化触发的回调
+            onShowSizeChange: getSubjectList,
           }}
         />
         ,
@@ -88,3 +87,4 @@ export default class Subject extends Component {
     );
   }
 }
+export default Subject;

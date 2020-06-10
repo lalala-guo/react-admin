@@ -22,6 +22,9 @@ app.use((req, res, next) => {
 // 模拟请求，并返回模拟数据
 // http://47.103.203.152/admin/edu/subject/:page/:limit get
 // 后台路由：只能接受特定请求方式和请求地址的请求
+
+
+// 获取一级列表数据
 app.get("/admin/edu/subject/:page/:limit", (req, res, next) => {
   /*
     req -> request 请求对象 客户端发送给服务器的数据
@@ -51,7 +54,7 @@ app.get("/admin/edu/subject/:page/:limit", (req, res, next) => {
     [`items|${limit}`]:[
         {
             "_id|+1": 1,
-            title:"@ctitle",
+            title:"@ctitle(2, 4)",
             parentId: 0,
         }
     ]
