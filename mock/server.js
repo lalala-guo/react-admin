@@ -8,6 +8,9 @@ const Random = Mock.Random;
 // 随机中文标题
 Random.ctitle();
 
+// 使用解析POST/PUT请求的请求体参数的中间件
+app.use(express.json());
+
 // 解决跨域
 // app.use() 中间件，代表接受所有请求
 // 使用cors 解决跨域
@@ -22,6 +25,28 @@ app.use((req, res, next) => {
 // 模拟请求，并返回模拟数据
 // http://47.103.203.152/admin/edu/subject/:page/:limit get
 // 后台路由：只能接受特定请求方式和请求地址的请求
+
+//  添加请求
+app.post("/admin/edu/subject/save", (req, res, next) => {
+  // 默认express不解析请求体参数
+  // 需要使用中间件
+  const { title, parentId } = req.body;
+
+  console.log(title, parentId);
+
+  // 返回响应
+  res.json({
+    code: 20000, // 成功状态码
+    success: true, // 成功
+    data: {
+      // 成功的具体数据
+      _id: Date.now(),
+      title,
+      parentId,
+    },
+    message: "", // 失败原因
+  });
+});
 
 
 // 获取二级列表数据

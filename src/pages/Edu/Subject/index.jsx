@@ -48,6 +48,11 @@ class Subject extends Component {
     
   // };
 
+  // 跳转添加页面
+  showAddSubject = () => {
+    this.props.history.push("/edu/subject/add")
+  }
+
   render() {
     const { subjectList, getSubjectList } = this.props;
     const { expandedRowKeys } = this.state
@@ -89,6 +94,7 @@ class Subject extends Component {
           type="primary"
           className="subject-btn"
           style={{ marginBottom: "20px" }}
+          onClick={this.showAddSubject}
         >
           <PlusOutlined />
           新建
