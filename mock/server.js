@@ -24,6 +24,42 @@ app.use((req, res, next) => {
 // 后台路由：只能接受特定请求方式和请求地址的请求
 
 
+// 获取二级列表数据
+app.get("/admin/edu/subject/get/:parentId", (req, res, next) => {
+
+  const { parentId } = req.params;
+  const total = Random.integer(1, 5)
+  // mock 数据
+  const data = Mock.mock({
+    total,// 以某个的范围取一个随机整数
+    [`items|${total}`]:[
+        {
+            "_id|+1": 100,
+            title:"@ctitle(2, 4)",
+            parentId
+        }
+    ]
+  })
+  console.log(data);
+  /*
+  二级分类
+  {
+    _id: 2, // 自己分类id
+    title: 'HTML', // 课程分类名称
+    parentId: 1 // 父级分类Id，如果是0就是1级分类, 不是就是二级分类
+  }
+*/
+
+  // 返回响应
+  res.json({
+    code: 20000, // 成功状态码
+    success: true, // 成功
+    data, // 成功的具体数据
+    message: "", // 失败原因
+  }); // 将数据装换json字符串返回响应
+});
+
+
 // 获取一级列表数据
 app.get("/admin/edu/subject/:page/:limit", (req, res, next) => {
   /*

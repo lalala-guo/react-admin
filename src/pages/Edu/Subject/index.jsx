@@ -1,21 +1,28 @@
 import React, { Component } from "react";
 
 import { Button, Table, Tooltip } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { connect } from "react-redux"
-import { getSubjectList } from "./redux/actions";
+import { PlusOutlined, EditOutlined, DeleteOutlined, FormOutlined } from "@ant-design/icons";
+import { connect } from "react-redux";
+import { getSubjectList, getSubsubjectList } from "./redux/actions";
 import "./index.less";
 
 @connect(
   (state) => ({
     subjectList: state.subjectList,
   }),
-  { getSubjectList }
+  { getSubjectList, getSubsubjectList }
 )
 class Subject extends Component {
   componentDidMount() {
     this.props.getSubjectList(1, 10);
   }
+
+  // 点击展开一级菜单
+  handleExpand = (expanded, record) => {
+    // 请求一级菜单对应二级菜单数据
+    this.props.getSubsubjectList(record._id);
+    
+  };
 
   render() {
     const { subjectList, getSubjectList } = this.props;
@@ -65,10 +72,29 @@ class Subject extends Component {
         <Table
           columns={columns}
           expandable={{
-            expandedRowRender: (record) => (
-              <p style={{ margin: 0 }}>{record.description}</p>
-            ),
-            rowExpandable: (record) => record.name !== "Not Expandable",
+            expandedRowRender: (record) => {
+              const children = record.children ? record.children : [];
+              console.log(children);
+              
+              // return <p style={{ margin: 0 }}>{record.description}</p>
+              return children.map((subSubject) => {
+                return (
+                  <div key={subSubject._id} className="sub-subject-row">
+                    <div>{subSubject.title}</div>
+                    <div className="sub-subject-row-right">
+                      <Button type="primary">
+                        <FormOutlined />
+                      </Button>
+                      <Button type="danger" className="subject-btn">
+                        <DeleteOutlined />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              });
+            },
+            // rowExpandable: (record) => record.name !== "Not Expandable",
+            onExpand: this.handleExpand,
           }}
           dataSource={subjectList.items} // 决定每一行显示的数据
           rowKey="_id" //   key
