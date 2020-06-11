@@ -44,4 +44,10 @@ export function reqAddSubject(title, parentId) {
     });
   }
 
-  
+   // 删除课程分类
+   export function reqDelSubject(id) {
+    return request({
+      url: `${BASE_URL}/remove/${id}`,
+      method: "DELETE",
+    });
+  } 

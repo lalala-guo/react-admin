@@ -1,10 +1,22 @@
 import React, { Component } from "react";
 
-import { Button, Table, Tooltip, Input, message } from "antd";
-import { PlusOutlined, DeleteOutlined, FormOutlined } from "@ant-design/icons";
+import { Button, Table, Tooltip, Input, message, Modal } from "antd";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  FormOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import { connect } from "react-redux";
-import { getSubjectList, getSubsubjectList, updateSubject } from "./redux/actions";
+import {
+  getSubjectList,
+  getSubsubjectList,
+  updateSubject,
+} from "./redux/actions";
+import { reqDelSubject } from "@api/edu/subject";
 import "./index.less";
+
+const { confirm } = Modal;
 
 @connect(
   (state) => ({
@@ -16,15 +28,18 @@ class Subject extends Component {
   state = {
     // 初始化数据  展开项
     expandedRowKeys: [],
-    subjectId: "",
-    updateSubjectTitle: "",
+    subjectId: "", // 要更新商品分类id
+    updateSubjectTitle: "", //  正在更新分类的标题
+    subjectTitle: "", // 要更新商品分类标题
+    current: 1, // 当前页数
+    pageSize: 10, // 每页条数
   };
   componentDidMount() {
-    this.props.getSubjectList(1, 10);
+    this.getSubjectList(1, 10);
   }
   //
   handleExpandedRowsChange = (expandedRowKeys) => {
-    console.log("handleExpandedRowsChange", expandedRowKeys);
+    // console.log("handleExpandedRowsChange", expandedRowKeys);
 
     // 长度
     const length = expandedRowKeys.length;
@@ -50,8 +65,17 @@ class Subject extends Component {
 
   // };
 
+  // 删除成功后  要显示当前页  不能默认回到第一页 所以要定义一个函数 保存当前的page 和limit
+  getSubjectList = (page, limit) => {
+    this.setState({
+      current: page,
+      pageSize: limit,
+    });
+    return this.props.getSubjectList(page, limit);
+  };
+
   getFirstPageSubjectList = (page, limit) => {
-    this.props.getSubjectList(1, limit);
+    this.getSubjectList(1, limit);
   };
 
   // 跳转添加页面
@@ -60,11 +84,16 @@ class Subject extends Component {
   };
 
   // 点击 更新按钮 更改数据
-  showUpdateSubject = (subjectId) => {
+  showUpdateSubject = (subject) => {
     // 更新 state 数据
     return () => {
+      // 如果添加的 有subjectId 说明有未更新的数据  提示
+      if (this.state.subjectId) {
+        message.warning("请更新当前课程分类")
+      }
       this.setState({
-        subjectId,
+        subjectId: subject._id,
+        subjectTitle: subject.title,
       });
     };
   };
@@ -72,45 +101,81 @@ class Subject extends Component {
   // 收集数据 更新state
   handleInputChange = (e) => {
     const value = e.target.value.trim();
-    // const {updateSubjectTitle} = this.state
-    if (!value) {
-      message.warning("数据不能为空");
-      return;
-    }
-    // if(updateSubjectTitle === value){
-    //   message.warning("数据要更改")
-    // }
     this.setState({
       updateSubjectTitle: value,
     });
   };
 
-  // 确认更新课程分类
-  updateSubject = async() => {
-    const { subjectId, updateSubjectTitle} = this.state
-    // 发送异步请求
-    await this.props.updateSubject(updateSubjectTitle, subjectId)
-    if(!updateSubjectTitle) {
-      message.warning("数据不能为空")
-      return 
+  // 确认 更新课程分类
+  updateSubject = async () => {
+    const { subjectId, updateSubjectTitle, subjectTitle } = this.state;
+    if (!updateSubjectTitle) {
+      message.warning("数据不能为空");
+      return;
     }
+    if (updateSubjectTitle === subjectTitle) {
+      message.warn("输入更新课程分类标题不能与之前一样~");
+      return;
+    }
+    // 发送异步请求
+    await this.props.updateSubject(updateSubjectTitle, subjectId);
     // 成功 提示
-    message.success("更新成功")
+    message.success("更新成功");
     // 调用cancel函数 返回
     this.cancel();
-  }
+  };
 
-  // 取消
+  // 取消 更新
   cancel = () => {
     this.setState({
       subjectId: "",
       updateSubjectTitle: "",
-    })
-  }
+    });
+  };
+
+  // 删除数据
+  delSubject = (subject) => {
+    return () => {
+      confirm({
+        title: (
+          <p>
+            你确定要删除 <span className="subject-del">{subject.title}</span>{" "}
+            课程分类吗?
+          </p>
+        ),
+        icon: <ExclamationCircleOutlined />,
+        // content: 'Some descriptions',
+        onOk: async () => {
+          //  确认 发送请求 删除数据
+          await reqDelSubject(subject._id);
+          // 提示
+          message.success("删除成功");
+
+          const { current, pageSize } = this.state;
+
+          // 删除成功后  要显示当前页  不能默认回到第一页
+          // 当此时不是第一页 并且此页只有一条数据时, 回到上一页  但当删除的是最后一条数据的子数据时不应该跳转到上一页
+          if (
+            current > 1 &&
+            this.props.subjectList.items.length === 1 &&
+            subject.parentId === "0"
+          ) {
+            this.getSubjectList(current - 1, pageSize);
+            return;
+          }
+          // 重新获取数据
+          this.getSubjectList(current, pageSize);
+        },
+        onCancel() {
+          // console.log('Cancel');
+        },
+      });
+    };
+  };
 
   render() {
-    const { subjectList, getSubjectList } = this.props;
-    const { expandedRowKeys } = this.state;
+    const { subjectList } = this.props;
+    const { expandedRowKeys, current, pageSize } = this.state;
     const columns = [
       {
         title: "分类名称",
@@ -143,21 +208,21 @@ class Subject extends Component {
           if (subjectId === id) {
             return (
               <>
-                <Tooltip placement="top" title="更新课程分类">
                   <Button
                     type="primary"
                     className="subject-btn"
                     style={{ marginTop: "10px" }}
-                    onClick = {this.updateSubject}
+                    onClick={this.updateSubject}
                   >
                     确认
                   </Button>
-                </Tooltip>
-                <Tooltip placement="top" title="删除课程分类">
-                  <Button type="danger" className="subject-btn" onClick={this.cancel}>
+                  <Button
+                    type="danger"
+                    className="subject-btn"
+                    onClick={this.cancel}
+                  >
                     取消
                   </Button>
-                </Tooltip>
               </>
             );
           }
@@ -174,7 +239,11 @@ class Subject extends Component {
                 </Button>
               </Tooltip>
               <Tooltip placement="top" title="删除课程分类">
-                <Button type="danger" className="subject-btn">
+                <Button
+                  type="danger"
+                  className="subject-btn"
+                  onClick={this.delSubject(subject)}
+                >
                   <DeleteOutlined />
                 </Button>
               </Tooltip>
@@ -232,16 +301,18 @@ class Subject extends Component {
           dataSource={subjectList.items} // 决定每一行显示的数据
           rowKey="_id" //   key
           pagination={{
+            // 分页器
+            current, // 当前页数
+            pageSize, // 每页条数
             total: subjectList.total, // 总数
             showQuickJumper: true, // 是否显示快速跳转
             showSizeChanger: true, // 是否显示修改每页显示数量
             pageSizeOptions: ["5", "10", "15", "20"],
             defaultPageSize: 10,
-            onChange: getSubjectList, // 页码发生变化触发的回调
+            onChange: this.getSubjectList, // 页码发生变化触发的回调
             onShowSizeChange: this.getFirstPageSubjectList,
           }}
         />
-        ,
       </div>
     );
   }

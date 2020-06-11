@@ -42,7 +42,7 @@ function AddSubject({ total, getSubjectList, history }) {
   //   工厂函数的 componentDidMount
   useEffect(() => {
     //每次创建 都更新page为1  防止 连续 增加
-    let page = 1;
+    // let page = 1;
     //   useEffect 中不能之后传入异步函数  要自己定义一个函数 为 异步函数  并调用 否则会报错
     const fetchData = async () => {
       const items = await getSubjectList(page++, 10);
