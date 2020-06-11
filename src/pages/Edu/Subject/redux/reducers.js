@@ -1,4 +1,4 @@
-import { GET_SUBJECT_LIST, GET_SUB_SUBJECT_LIST } from './contants'
+import { GET_SUBJECT_LIST, GET_SUB_SUBJECT_LIST, UPDATE_SUBJECT } from './contants'
 
   const initSubjectList = {
     total: 0, // 总数
@@ -38,6 +38,31 @@ import { GET_SUBJECT_LIST, GET_SUB_SUBJECT_LIST } from './contants'
            
           }),
         };
+      case UPDATE_SUBJECT:
+        return {
+          total: prevState.total,
+          items: prevState.items.map((subject) => {
+            // 一级分类  如果id一致  就分别展开原数据 和新数据  进而新数据可以覆盖掉原数据
+              if (subject._id === action.data._id) {
+                  return{
+                    ...subject,
+                    ...action.data
+                  }
+              }
+
+              // 二级分类
+              subject.children = subject.children.map((item) => {
+                if (item._id === action.data._id) {
+                  return{
+                    ...item,
+                    ...action.data
+                  }
+                }
+                return item;
+              })
+            return subject;
+          })
+        }
       default:
         return prevState;
     }

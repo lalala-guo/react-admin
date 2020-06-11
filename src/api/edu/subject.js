@@ -2,20 +2,20 @@ import request from "@utils/request";
 
 const BASE_URL = "/admin/edu/subject";
 
-const MOCK_BASE_URL = `http://localhost:9527${BASE_URL}`;
+// const MOCK_BASE_URL = `http://localhost:9527${BASE_URL}`;
 
 // 获取一级列表分类数据
 export function reqGetSubjectList(page,limit) {
     // return request.get(`${MOCK_BASE_URL}/${page}/${limit}`)
     return request({
-        url:`${MOCK_BASE_URL}/${page}/${limit}`,
+        url:`${BASE_URL}/${page}/${limit}`,
         method:"GET"
     })
 }
 // 获取一级列表分类数据
 export function reqGetSubsubjectList(parentId) {
     return request({
-        url:`${MOCK_BASE_URL}/get/${parentId}`,
+        url:`${BASE_URL}/get/${parentId}`,
         method:"GET"
     })
 }
@@ -23,7 +23,7 @@ export function reqGetSubsubjectList(parentId) {
 // 添加课程分类
 export function reqAddSubject(title, parentId) {
     return request({
-      url: `${MOCK_BASE_URL}/save`,
+      url: `${BASE_URL}/save`,
       method: "POST",
       data: { // 请求参数
         title,
@@ -31,3 +31,17 @@ export function reqAddSubject(title, parentId) {
       },
     });
   }
+
+  // 更新课程分类
+  export function reqUpdateSubject(title, Id) {
+    return request({
+      url: `${BASE_URL}/update`,
+      method: "PUT",
+      data: { // 请求参数
+        title,
+        Id,
+      },
+    });
+  }
+
+  
