@@ -52,7 +52,9 @@ class List extends Component {
 
     const columns = [
       { title: "名称", dataIndex: "title", key: "title" },
-      { title: "是否免费", dataIndex: "free", key: "free" },
+      { title: "是否免费", dataIndex: "free", key: "free", render: (free) => {
+        return free === undefined ? "" : free ? "是" : "否"
+      } },
       {
         title: "操作",
         width: 280,
