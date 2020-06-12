@@ -1,18 +1,22 @@
 import React, { useEffect } from "react";
-import { Form, Select, Button} from "antd";
+import { Form, Select, Button, message} from "antd";
 import { connect } from 'react-redux'
-import { getAllCourseList } from '../../redux'
+import { getAllCourseList, getChapterList } from '../../redux'
 import './index.less'
 
 const { Option } = Select;
 
 // 解构 props中的参数
- function Search({ getAllCourseList, allCourseList }) {
+ function Search({ getAllCourseList, allCourseList, getChapterList }) {
   // Form组件提供hooks函数 useForm（只能在工厂函数组件使用，不能在ES6类组件使用）
   // 该函数作用就是提供一个form对象，让我们可以对表单进行各种操作
   const [form] = Form.useForm();
 
-  const finish = () => {};
+  const finish = async ({chapterId}) => {
+    // 请求
+    await getChapterList({page: 1, limit: 10,chapterId})
+    message.success("获取成功")
+  };
 
   const resetForm = () => {
     // form.resetFields(['title']) // 重置字段name的表单项
@@ -57,7 +61,7 @@ const { Option } = Select;
 }
 export default connect(
   (state) => ({
-    allCourseList: state.chapter.allCourseList
+    allCourseList: state.chapter.allCourseList,
   }),
-  { getAllCourseList }
+  { getAllCourseList, getChapterList }
 )(Search)

@@ -5,59 +5,102 @@ import {
   FullscreenOutlined,
   SettingOutlined,
   ReloadOutlined,
+  FormOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
+import { withRouter } from "react-router-dom";
 
-import './index.less'
+import { connect } from "react-redux";
+import { getLessonList } from "../../redux";
 
-export default class List extends Component {
-    
+import "./index.less";
+
+@withRouter
+@connect(
+  (state) => ({
+    chapters: state.chapter.chapters,
+  }),
+  { getLessonList }
+)
+class List extends Component {
+  state = {
+    expandedRowKeys: [],
+  };
+  handleExpandedRowsChange = (expandedRowKeys) => {
+    const length = expandedRowKeys.length;
+    if (length > this.state.expandedRowKeys.length) {
+      const lastKey = expandedRowKeys[length - 1];
+      this.props.getLessonList(lastKey);
+    }
+    this.setState({
+      expandedRowKeys,
+    });
+  };
+
+  showAddLesson = (chapter) => {
+    return () => {
+      // 默认情况下不是路由组件，没有三大属性
+      // 解决：需要三大属性 --> withRouter
+      this.props.history.push("/edu/chapter/addlesson", chapter);
+    };
+  };
+
   render() {
+    const { expandedRowKeys } = this.state;
+    const { chapters } = this.props;
+    // console.log(chapters);
+
     const columns = [
-        { title: 'Name', dataIndex: 'name', key: 'name' },
-        { title: 'Age', dataIndex: 'age', key: 'age' },
-        { title: 'Address', dataIndex: 'address', key: 'address' },
-        {
-          title: 'Action',
-          dataIndex: '',
-          key: 'x',
-          render: () => <a>Delete</a>,
+      { title: "名称", dataIndex: "title", key: "title" },
+      { title: "是否免费", dataIndex: "free", key: "free" },
+      {
+        title: "操作",
+        width: 280,
+        dataIndex: "",
+        key: "action",
+        render: (data) => {
+          return (
+            <>
+              {"free" in data ? null : (
+                <Tooltip title="新增课时">
+                  <Button
+                    type="primary"
+                    className="chapter-btn"
+                    onClick={this.showAddLesson(data)}
+                  >
+                    <PlusOutlined />
+                  </Button>
+                </Tooltip>
+              )}
+              <Tooltip placement="top" title="更新">
+                <Button
+                  type="primary"
+                  // className="subject-btn"
+                  style={{ marginTop: "10px" }}
+                  // onClick={this.showUpdateSubject(subject._id)}
+                >
+                  <FormOutlined />
+                </Button>
+              </Tooltip>
+              <Tooltip placement="top" title="删除">
+                <Button
+                  type="danger"
+                  className="subject-btn"
+                  // onClick={this.delSubject(subject)}
+                >
+                  <DeleteOutlined />
+                </Button>
+              </Tooltip>
+            </>
+          );
         },
-      ];
-      const data = [
-        {
-          key: 1,
-          name: 'John Brown',
-          age: 32,
-          address: 'New York No. 1 Lake Park',
-          description: 'My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park.',
-        },
-        {
-          key: 2,
-          name: 'Jim Green',
-          age: 42,
-          address: 'London No. 1 Lake Park',
-          description: 'My name is Jim Green, I am 42 years old, living in London No. 1 Lake Park.',
-        },
-        {
-          key: 3,
-          name: 'Not Expandable',
-          age: 29,
-          address: 'Jiangsu No. 1 Lake Park',
-          description: 'This not expandable',
-        },
-        {
-          key: 4,
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          description: 'My name is Joe Black, I am 32 years old, living in Sidney No. 1 Lake Park.',
-        },
-      ];
+      },
+    ];
     return (
       <div className="chapter-list">
         <div className="chapter-list-header">
           <h3>章节列表</h3>
-          <div >
+          <div>
             <Button type="primary">
               <PlusOutlined />
               新增
@@ -74,22 +117,33 @@ export default class List extends Component {
             </Tooltip>
           </div>
         </div>
-        <Alert
-            message="已选择 0 项"
-            type="info"
-            showIcon
-          />
-          <Table
-            columns={columns}
-            expandable={{
-              expandedRowRender: (record) => (
-                <p style={{ margin: 0 }}>{record.description}</p>
-              ),
-              rowExpandable: (record) => record.name !== "Not Expandable",
-            }}
-            dataSource={data}
-          ></Table>
+        <Alert message="已选择 0 项" type="info" showIcon />
+        <Table
+          className="chapter-list-table"
+          columns={columns}
+          expandable={{
+            expandedRowKeys, // 展开的行
+
+            // 展开的行变化时触发的回调函数
+            onExpandedRowsChange: this.handleExpandedRowsChange,
+          }}
+          dataSource={chapters.items}
+          rowKey="_id" //   key
+          pagination={{
+            // 分页器
+            // current, // 当前页数
+            // pageSize, // 每页条数
+            total: chapters.total, // 总数
+            showQuickJumper: true, // 是否显示快速跳转
+            showSizeChanger: true, // 是否显示修改每页显示数量
+            pageSizeOptions: ["5", "10", "15", "20"],
+            defaultPageSize: 10,
+            // onChange: this.getSubjectList, // 页码发生变化触发的回调
+            // onShowSizeChange: this.getFirstPageSubjectList,
+          }}
+        ></Table>
       </div>
     );
   }
 }
+export default List;
