@@ -4,16 +4,23 @@
 */
 
 import React, { Component } from "react";
-import { Upload as AntdUpload, Button, message } from "antd";
+import { 
+    Button, 
+    // as 重命名
+    Upload as AntdUpload, 
+    message,
+} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 import * as qiniu from "qiniu-js"; // 七牛上传SDK
 import { nanoid } from "nanoid"; // 用来生成唯一id
 
 import { reqGetUploadToken } from "@api/edu/upload";
+import qiniuConfig from "@conf/qiniu";
 
 //  设置 视频大小的 最大限制  为 35mb
-const MAX_VIDEO_SIZE = 35 * 1024 * 1024; 
+
+const MAX_VIDEO_SIZE = 35 * 1024 * 1024;
 
 export default class Upload extends Component {
   // 上传之前 要判断 uploadToken是否过期  时间为两个小时
@@ -27,13 +34,13 @@ export default class Upload extends Component {
       const { uploadToken, expires } = JSON.parse(
         localStorage.getItem("upload_token")
       );
-    //   // 判断 本地 token 是否过期
+      //   // 判断 本地 token 是否过期
       if (!this.isValidUploadToken(expires)) {
         // 抛出错误
         throw new Error("uploadToken过期了~");
       }
-    //   console.log(uploadToken, expires);
-      
+      //   console.log(uploadToken, expires);
+
       // 返回 state
       return {
         uploadToken,
@@ -47,13 +54,15 @@ export default class Upload extends Component {
       };
     }
   };
-  
-  state = this.getUploadToken();
-  
+
+  state = {
+    ...this.getUploadToken(),
+    // 是否显示 上传视频的按钮
+    isUploadSuccess: false,
+  };
 
   // 保存UploadToken
   saveUploadToken = (uploadToken, expires) => {
-      
     // 获取
     const data = {
       uploadToken,
@@ -82,14 +91,14 @@ export default class Upload extends Component {
   beforeUpload = (file, fileList) => {
     //   返回Promise对象
     return new Promise(async (resolve, reject) => {
-    //   console.log(file, fileList);
+      //   console.log(file, fileList);
       // 限制 上传视频的大小   如果视频的大小 大于 最大设定的大小
       // 就提示  并终止上传
       if (file.size > MAX_VIDEO_SIZE) {
         // 提示
         message.warn("视频大小不能超过35mb");
         // 终止上传
-        return reject;
+        return reject();
       }
 
       const { expires } = this.state;
@@ -115,16 +124,17 @@ export default class Upload extends Component {
       mimeType: ["video/mp4"], // 用来限定上传文件类型
     };
     const config = {
-      // 当前对象存储库位于区域（华东 华南 华北...）
-      // qiniu.region.z0   //: 代表华东区域
-      region: qiniu.region.z1 //: 代表华北区域
-      // qiniu.region.z2   //: 代表华南区域
-      // qiniu.region.na0   //: 代表北美区域
-      // qiniu.region.as0   //: 代表东南亚区域
-      //   region: qiniu.region.z2,
+      region: qiniuConfig.region,
+      //   // 当前对象存储库位于区域（华东 华南 华北...）
+      //   // qiniu.region.z0   //: 代表华东区域
+      //   region: qiniu.region.z1 //: 代表华北区域
+      //   // qiniu.region.z2   //: 代表华南区域
+      //   // qiniu.region.na0   //: 代表北美区域
+      //   // qiniu.region.as0   //: 代表东南亚区域
+      //   //   region: qiniu.region.z2,
     };
     // 上传文件
-    var observable = qiniu.upload(
+    const observable = qiniu.upload(
       file, // 上传的文件
       key, // 上传的文件新命名（保证唯一性）
       uploadToken, // 上传凭证
@@ -133,7 +143,7 @@ export default class Upload extends Component {
     );
 
     // 创建 observe
-    const observe = {
+    const observer = {
       // 改进 进度条
 
       // 上传过程中 触发的回调函数  获取上传的总进度并更新
@@ -148,32 +158,55 @@ export default class Upload extends Component {
         message.error("上传视频失败~");
       },
       //   成功
-      complete(res) {
+      complete:(res) => {
         onSuccess(res);
         message.success("上传视频成功~");
+        const video = qiniuConfig.prefix_url + res.key;
+        // const video = "http://qbsk1mwoi.bkt.clouddn.com/" + res.key;
+        
+        // 利用 onChange 收集 video  传入 视频地址
+        this.props.onChange(video)
+        // 隐藏按钮
+        this.setState({
+            isUploadSuccess: true,
+          });
       },
     };
 
     // 开始上传
-    this.subscription = observable.subscribe(observe);
+    this.subscription = observable.subscribe(observer);
   };
   // 上传取消
   componentWillUnmount() {
-    this.subscription.unsubscribe(); // 上传取消
+    //   this.subscription 有值的时候才用取消 没有数据 就不用取消
+    this.subscription && this.subscription.unsubscribe(); // 上传取消
   }
 
+  remove = () => {
+    this.subscription && this.subscription.unsubscribe(); // 上传取消
+    // 将视频地址  置为空
+    this.props.onChange("");
+    // 显示按钮
+    this.setState({
+      isUploadSuccess: false,
+    });
+  };
+
   render() {
+    const { isUploadSuccess } = this.state;
     return (
       <AntdUpload
-        className="upload"
         accept="video/mp4" // 决定上传选择的文件类型
         listType="picture"
         beforeUpload={this.beforeUpload}
         customRequest={this.customRequest}
+        onRemove={this.remove}
       >
-        <Button>
-          <UploadOutlined /> 上传视频
-        </Button>
+        {isUploadSuccess ? null : (
+          <Button>
+            <UploadOutlined /> 上传视频
+          </Button>
+        )}
       </AntdUpload>
     );
   }

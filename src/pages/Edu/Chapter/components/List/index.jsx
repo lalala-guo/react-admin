@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Tooltip, Alert, Table } from "antd";
+import { Button, Tooltip, Alert, Table, Modal } from "antd";
 import {
   PlusOutlined,
   FullscreenOutlined,
@@ -7,14 +7,18 @@ import {
   ReloadOutlined,
   FormOutlined,
   DeleteOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { withRouter } from "react-router-dom";
 
 import { connect } from "react-redux";
+import Player from "griffith";
+
 import { getLessonList } from "../../redux";
 
 import "./index.less";
 
+// withRouter：给非路由组件传递路由组件的三大属性
 @withRouter
 @connect(
   (state) => ({
@@ -25,6 +29,8 @@ import "./index.less";
 class List extends Component {
   state = {
     expandedRowKeys: [],
+    isShowVideo: false,
+    lesson: {},
   };
   handleExpandedRowsChange = (expandedRowKeys) => {
     const length = expandedRowKeys.length;
@@ -36,7 +42,7 @@ class List extends Component {
       expandedRowKeys,
     });
   };
-
+//  添加课时
   showAddLesson = (chapter) => {
     return () => {
       // 默认情况下不是路由组件，没有三大属性
@@ -45,16 +51,60 @@ class List extends Component {
     };
   };
 
+  // 预览
+  showVideoModal = (lesson) => {
+    // console.log(lesson);
+    
+    return () => {
+      this.setState({
+        isShowVideo: true,
+        lesson,
+      });
+    }
+  };
+
+  // 取消
+  handleCancel = () => {
+    this.setState({
+      isShowVideo: false,
+      lesson: {},
+    });
+  };
   render() {
-    const { expandedRowKeys } = this.state;
     const { chapters } = this.props;
-    // console.log(chapters);
+    const { expandedRowKeys, isShowVideo, lesson } = this.state;
+    // console.log(lesson);
 
     const columns = [
-      { title: "名称", dataIndex: "title", key: "title" },
-      { title: "是否免费", dataIndex: "free", key: "free", render: (free) => {
-        return free === undefined ? "" : free ? "是" : "否"
-      } },
+      { 
+        title: "名称", 
+        dataIndex: "title", 
+        key: "title", 
+      },
+      {
+        title: "是否免费",
+        dataIndex: "free",
+        key: "free",
+        render: (free) => {
+          return free === undefined ? "" : free ? "是" : "否";
+        },
+      },
+      {
+        title: "视频",
+        key: "video",
+        render: (lesson) => {
+          return (
+            // 判断 lesson 是否含有视频 有 才显示预览 
+            "video" in lesson && (
+              <Tooltip title="预览视频">
+                <Button onClick={this.showVideoModal(lesson)}>
+                  <EyeOutlined />
+                </Button>
+              </Tooltip>
+            ) 
+          );
+        },
+      },
       {
         title: "操作",
         width: 280,
@@ -144,6 +194,25 @@ class List extends Component {
             // onShowSizeChange: this.getFirstPageSubjectList,
           }}
         ></Table>
+        <Modal
+          title={lesson.title}
+          visible={isShowVideo} // 是否显示
+          onCancel={this.handleCancel} // 取消
+          footer={null} // 不要下面的两个按钮
+          centered // 垂直居中
+          destroyOnClose={true} // 关闭时销毁子元素
+        >
+          <Player
+            sources={
+              {
+              hd: {
+                play_url: lesson.video,
+                // play_url: "http://qbsk1mwoi.bkt.clouddn.com/2cYQIkj2if",
+                 
+              },
+            }}
+          />
+        </Modal>
       </div>
     );
   }

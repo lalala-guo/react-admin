@@ -39,11 +39,9 @@ const getLessonListSync = (data) => ({
 });
 
 export const getLessonList = (chapterId) => {
-  console.log(chapterId);
-  
   return (dispatch) => {
     return reqGetLessonList(chapterId).then((response) => {
-      dispatch(getLessonListSync({chapterId, lessons: response}));
+      dispatch(getLessonListSync({ chapterId, lessons: response }));
       return response;
     });
   };

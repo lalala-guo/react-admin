@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Form, Input, Button, Select, message, Switch } from "antd";
+import { Card, PageHeader, Form, Input, Button, Select, message, Switch } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
@@ -27,20 +27,19 @@ export default function AddLesson({location, history}) {
     // 成功
     message.success("添加课时成功")
     // 跳转到章节页面
-    history.push("edu/chapter/list")
+    history.push("/edu/chapter/list")
   }
-
-
+  const onBack = () => {
+    history.push("/edu/chapter/list");
+  };
   return (
     <Card
-      title={
-        <>
-          {/* 点击箭头  返回 展示课程分类列表页面 */}
-          <Link to="/edu/subject/addlesson">
-            <ArrowLeftOutlined />
-          </Link>
-          <span className="title">添加课时</span>
-        </>
+    title={
+        <PageHeader
+          className="add-lesson-header"
+          onBack={onBack}
+          title="新增课时"
+        />
       }
     >
       <Form
@@ -72,7 +71,7 @@ export default function AddLesson({location, history}) {
 
         <Form.Item
           name="video"
-        //   rules={[{ required: true, message: "请上传视频!" }]}
+          rules={[{ required: true, message: "请上传视频!" }]}
         >
           <Upload />
         </Form.Item>
