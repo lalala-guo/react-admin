@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Button, Tooltip, Alert, Table, Modal } from "antd";
+import screenfull from "screenfull"
+import { Button, Tooltip, Alert, Table, Modal, message } from "antd";
 import {
   PlusOutlined,
   FullscreenOutlined,
@@ -8,29 +9,30 @@ import {
   FormOutlined,
   DeleteOutlined,
   EyeOutlined,
+  ExclamationCircleOutlined
 } from "@ant-design/icons";
 import { withRouter } from "react-router-dom";
-
 import { connect } from "react-redux";
 import Player from "griffith";
 
-import { getLessonList } from "../../redux";
+import { getLessonList, batchRemoveLessonList, batchRemoveChapterList } from "../../redux";
 
 import "./index.less";
-
+const { confirm } = Modal;
 // withRouter：给非路由组件传递路由组件的三大属性
 @withRouter
 @connect(
   (state) => ({
     chapters: state.chapter.chapters,
   }),
-  { getLessonList }
+  { getLessonList, batchRemoveLessonList, batchRemoveChapterList }
 )
 class List extends Component {
   state = {
     expandedRowKeys: [],
     isShowVideo: false,
     lesson: {},
+    selectedRowKeys: [],
   };
   handleExpandedRowsChange = (expandedRowKeys) => {
     const length = expandedRowKeys.length;
@@ -42,7 +44,7 @@ class List extends Component {
       expandedRowKeys,
     });
   };
-//  添加课时
+  //  添加课时
   showAddLesson = (chapter) => {
     return () => {
       // 默认情况下不是路由组件，没有三大属性
@@ -54,13 +56,13 @@ class List extends Component {
   // 预览
   showVideoModal = (lesson) => {
     // console.log(lesson);
-    
+
     return () => {
       this.setState({
         isShowVideo: true,
         lesson,
       });
-    }
+    };
   };
 
   // 取消
@@ -70,16 +72,91 @@ class List extends Component {
       lesson: {},
     });
   };
+
+  //  表格 可选择 的onChange回调
+  selectChange = (selectedRowKeys) => {
+    // 更新state中的数据
+    this.setState({
+      selectedRowKeys,
+    });
+  };
+
+  // 批量删除
+  batchRemove = async () => {
+    // 要收集数据的id
+    // 分开  章节  和  课时
+    // 获取 selectedRowKeys
+    const { selectedRowKeys } = this.state;
+    // console.log(selectedRowKeys);   // selectedRowKeys  中 包含所有 选中的 key值  章节和课时
+    // 获取chapters  并解构赋值
+    const {
+      chapters: { items: chapters },  // 解构赋值 并重命名
+    } = this.props;
+
+    // 将id分为章节id和课时id
+    //  复制一份 选中的数据 key值
+    const ids = Array.from(selectedRowKeys); 
+    const chapterId = [];
+    chapters.forEach((chapter) => {
+      // 遍历所有的章节数据  并找到所有的章节id
+      const index = ids.indexOf(chapter._id);
+      if (index > -1) {
+        // 找到了   就获取每一个id
+        const [id] = ids.splice(index, 1);
+        // 存入章节id中
+        chapterId.push(id);
+      }
+    });
+
+    confirm({
+      title: "你确定要删除选中数据吗?",
+      icon: <ExclamationCircleOutlined />,
+      // content: 'Some descriptions',
+      onOk: async () => {
+         // 调用 方法 删除
+        await this.props.batchRemoveLessonList(ids)
+        await this.props.batchRemoveChapterList(chapterId)
+        message.success("批量删除成功")
+      },
+      // onCancel() {
+      //   console.log('Cancel');
+      // },
+    });
+
+  };
+
+  // 全屏
+  screenfull = () => {
+    // const element = document.getElementById('target');
+    // 接收 父组件 传递过来的 ref 属性  获取真实 DOM
+    const dom = this.props.fullscreenRef.current
+    // 显示全屏  在 获取数据后 点击显示全屏  需要再次获取
+    // screenfull.request(dom)
+    // 切换全屏  将此页面切换至全屏  不用重新获取数据
+    screenfull.toggle(dom);
+  }
+
+  // 刷新
+  Refresh = () => {
+    // 刷新 重新发送请求 获取数据
+    this.props.getLessonList();
+  }
+
   render() {
     const { chapters } = this.props;
-    const { expandedRowKeys, isShowVideo, lesson } = this.state;
+    const {
+      expandedRowKeys,
+      isShowVideo,
+      lesson,
+      selectedRowKeys,
+    } = this.state;
     // console.log(lesson);
 
     const columns = [
-      { 
-        title: "名称", 
-        dataIndex: "title", 
-        key: "title", 
+      {
+        title: "名称",
+        dataIndex: "title",
+        key: "title",
       },
       {
         title: "是否免费",
@@ -94,14 +171,14 @@ class List extends Component {
         key: "video",
         render: (lesson) => {
           return (
-            // 判断 lesson 是否含有视频 有 才显示预览 
+            // 判断 lesson 是否含有视频 有 才显示预览
             "video" in lesson && (
               <Tooltip title="预览视频">
                 <Button onClick={this.showVideoModal(lesson)}>
                   <EyeOutlined />
                 </Button>
               </Tooltip>
-            ) 
+            )
           );
         },
       },
@@ -155,13 +232,15 @@ class List extends Component {
           <div>
             <Button type="primary">
               <PlusOutlined />
-              新增
+              新增章节
             </Button>
-            <Button type="danger">批量删除</Button>
-            <Tooltip title="全屏">
+            <Button type="danger" onClick={this.batchRemove}>
+              批量删除
+            </Button>
+            <Tooltip title="全屏" onClick={this.screenfull}>
               <FullscreenOutlined />
             </Tooltip>
-            <Tooltip title="刷新">
+            <Tooltip title="刷新" onClick={this.Refresh}>
               <ReloadOutlined />
             </Tooltip>
             <Tooltip title="设置">
@@ -169,10 +248,18 @@ class List extends Component {
             </Tooltip>
           </div>
         </div>
-        <Alert message="已选择 0 项" type="info" showIcon />
+        <Alert
+          message={`已选择${selectedRowKeys.length}项`}
+          type="info"
+          showIcon
+        />
         <Table
           className="chapter-list-table"
           columns={columns}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: this.selectChange,
+          }}
           expandable={{
             expandedRowKeys, // 展开的行
 
@@ -203,12 +290,10 @@ class List extends Component {
           destroyOnClose={true} // 关闭时销毁子元素
         >
           <Player
-            sources={
-              {
+            sources={{
               hd: {
                 play_url: lesson.video,
                 // play_url: "http://qbsk1mwoi.bkt.clouddn.com/2cYQIkj2if",
-                 
               },
             }}
           />

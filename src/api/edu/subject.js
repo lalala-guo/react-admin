@@ -12,7 +12,7 @@ export function reqGetSubjectList(page,limit) {
         method:"GET"
     })
 }
-// 获取一级列表分类数据
+// 获取二级列表分类数据
 export function reqGetSubsubjectList(parentId) {
     return request({
         url:`${BASE_URL}/get/${parentId}`,
@@ -51,3 +51,11 @@ export function reqAddSubject(title, parentId) {
       method: "DELETE",
     });
   } 
+
+  // 获取所有一级课程分类
+export function reqGetAllSubjectList() {
+  return request({
+    url: `${BASE_URL}`,
+    method: "GET",
+  });
+}
