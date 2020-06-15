@@ -3,8 +3,6 @@ import { Card, Button, DatePicker } from "antd";
 
 import moment from "moment";
 
-import "./index.less";
-
 const { RangePicker } = DatePicker;
 
 //  左侧 

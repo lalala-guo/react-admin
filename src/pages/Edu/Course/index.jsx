@@ -129,9 +129,9 @@ class Course extends Component {
       dataIndex: "price",
       render: (text) => <span>{`￥ ${text}`}</span>,
       width: 120,
-      // sorter: {
-      //   compare: (a, b) => b.price - a.price,
-      // },
+      sorter: {
+        compare: (a, b) => b.price - a.price,
+      },
       sorter: true, // 后台排序~
     },
     {
