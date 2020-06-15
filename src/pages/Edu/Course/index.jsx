@@ -132,7 +132,7 @@ class Course extends Component {
       sorter: {
         compare: (a, b) => b.price - a.price,
       },
-      sorter: true, // 后台排序~
+      // sorter: true, // 后台排序~
     },
     {
       title: "课程讲师",
@@ -200,7 +200,6 @@ class Course extends Component {
     });
 
     const { searchData } = this.state;
-
     this.props.getCourseList({ page, limit, ...searchData }).finally(() => {
       this.setState({
         tableLoading: false,
@@ -223,7 +222,19 @@ class Course extends Component {
   };
 
   sortTable = (pagination, filters, sorter) => {
-    console.log(sorter);
+    console.log(pagination, filters, sorter);
+    // console.log(this.searchData);
+    const {page, limit} = this.state
+    const searchData = this.searchData
+    const { order, field } = sorter
+    const sort = order === "ascend" ? 1 : order === "descend" ? -1 : undefined 
+    this.props.getCourseList({
+      ...searchData,
+      page,
+      limit,
+      sortBy: field,
+      sort,
+    });
   };
 
   render() {
