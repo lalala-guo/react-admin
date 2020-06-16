@@ -17,22 +17,34 @@ export function getInfo() {
   });
 }
 
-// 登录
-export function reqLogin(username, password) {
-  return request({
-    url: `${BASE_URL}/login`,
-    method: "post",
-    data: {
-      username,
-      password,
-    },
-  });
-}
+// // 登录
+// export function reqLogin(username, password) {
+//   return request({
+//     url: `${BASE_URL}/login`,
+//     method: "post",
+//     data: {
+//       username,
+//       password,
+//     },
+//   });
+// }
 
 // 登出
 export function reqLogout() {
   return request({
     url: `${BASE_URL}/logout`,
     method: "post",
+  });
+}
+
+// 登录
+export function reqLogin(username, password) {
+  return request({
+    url: `${BASE_URL}/login`,
+    method: "POST",
+    data: {
+      username,
+      password,
+    },
   });
 }

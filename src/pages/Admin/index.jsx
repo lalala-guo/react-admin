@@ -4,6 +4,7 @@ import Visits from "./components/visits";
 import Sose from "./components/sose";
 import Search from "./components/search";
 import SearchRight from "./components/searchRight";
+import Static from "./components/static";
 
 export default function Admin() {
   return (
@@ -12,6 +13,7 @@ export default function Admin() {
       <Sose />
       <Search />
       <SearchRight />
+      <Static />
     </div>
   );
 }
