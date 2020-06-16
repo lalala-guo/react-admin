@@ -23,7 +23,7 @@ const { TabPane } = Tabs;
 const TOTAL_TIME = 60;
 let countingDownTime = TOTAL_TIME;
 
-function LoginForm({ login, history }) {
+function LoginForm({ login, mobileLogin, history }) {
   // Form表单提供form对象，对表单进行更加细致的操作
   const [form] = Form.useForm();
   const [isSendCode, setIsSendCode] = useState(false);
@@ -44,7 +44,7 @@ function LoginForm({ login, history }) {
         .then(async (values) => {
           const { username, password, rem } = values;
           const token = await login(username, password);
-          //  如果都选记住密码  就保存在本地
+          //  如果勾选记住密码  就保存在本地
           if (rem) {
             localStorage.setItem("user_token", token);
           }
@@ -57,15 +57,15 @@ function LoginForm({ login, history }) {
     //  手机号   登录
     form.validateFields(["mobile", "code", "rem"]).then(async (values) => {
       const { mobile, code, rem } = values;
-      console.log(values);
+      // console.log(values);
 
-    //   const token = await mobileLogin(mobile, code);
-    //   console.log(token);
+      const token = await mobileLogin(mobile, code);
+      // console.log(token);
 
-    //   // 记住密码
-    //   if (rem) {
-    //     localStorage.getItem("user_token", token);
-    //   }
+      // 记住密码
+      if (rem) {
+        localStorage.getItem("user_token", token);
+      }
       // 跳到首页
       history.replace("/");
     });
@@ -107,7 +107,7 @@ function LoginForm({ login, history }) {
 
   return (
     <>
-      <Form name="basic" form={form} initialValues={{ remember: true }}>
+      <Form name="basic" form={form} initialValues={{ rem: "checked" }}>
         <div className="login-form-header">
           <Tabs activeKey={activeKey} onChange={handleTabChange}>
             <TabPane tab="账户密码登录" key="password">
@@ -178,7 +178,7 @@ function LoginForm({ login, history }) {
                   <Form.Item>
                     <Button onClick={sendPhoneCode} disabled={isSendCode}>
                       {isSendCode
-                        ? `${countingDownTime}秒后可重发`
+                        ? `${countingDownTime}秒后重发`
                         : "获取验证码"}
                     </Button>
                   </Form.Item>
@@ -190,8 +190,10 @@ function LoginForm({ login, history }) {
         <Row justify="space-between">
           <Col>
             <Form.Item name="rem" valuePropName="checked">
-              <Checkbox name="checked">自动登录</Checkbox>
+              <Checkbox>自动登录</Checkbox>
             </Form.Item>
+          </Col>
+          <Col>
             <Form.Item>
               <Button type="link">忘记密码</Button>
             </Form.Item>
@@ -203,15 +205,15 @@ function LoginForm({ login, history }) {
           </Button>
         </Form.Item>
         <Form.Item className="login-type-contaner">
-          {/* <div className="login-type-contaner"> */}
-          <div className="login-type">
-            <span>其他登录方式</span>
-            <GithubOutlined />
-            <WechatOutlined />
-            <QqOutlined />
+          <div className="login-type-reg">
+            <div className="login-type">
+              <span>其他登录方式</span>
+              <GithubOutlined />
+              <WechatOutlined />
+              <QqOutlined />
+            </div>
             <Button type="link">注册</Button>
           </div>
-          {/* </div> */}
         </Form.Item>
       </Form>
     </>

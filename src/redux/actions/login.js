@@ -1,7 +1,7 @@
 import { reqLogin, reqLogout } from "@api/acl/login";
 import { LOGIN_SUCCESS, REMOVE_TOKEN } from "../constants/login";
 
-import { reqMobileLogin } from "../../api/acl/oauth";
+import { reqMobileLogin } from "@api/acl/oauth";
 
 // 手机号登录 
 export const mobileLogin = (mobile, code) => {
