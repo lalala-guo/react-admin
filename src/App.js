@@ -23,6 +23,7 @@ function App({ language }) {
   const locale = language === "en" ? enUS : zhCN; // antd的方案
   console.log(language)
   return (
+    //  通过 Router 向子组件传递三大组件
     <Router history={history}>
       <ConfigProvider locale={locale}>
         <IntlProvider

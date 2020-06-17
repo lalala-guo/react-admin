@@ -43,6 +43,7 @@ class Authorized extends Component {
       render,
     } = this.props;
 
+    //  包裹一个 loading 组件 在请求到数据 显示之前  显示loading组件
     return <Loading>{render(permissionList)}</Loading>;
   }
 }

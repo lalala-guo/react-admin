@@ -1,4 +1,5 @@
 import Login from "@pages/Login";
+import Oauth from "@pages/Login/components/Oauth";
 import NotFound from "@pages/404";
 
 //#region 
@@ -196,6 +197,11 @@ export const constantRoutes = [
 		path: "/login",
 		component: Login,
 		title: "登录",
+	},
+	{
+		path: "/oauth",
+		component: Oauth,
+		title: "登录授权",
 	},
 	{ path: "*", component: NotFound },
 ];

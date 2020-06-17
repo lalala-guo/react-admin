@@ -9,7 +9,7 @@ import "./index.less";
 class Loading extends Component {
   render() {
     const { loading } = this.props;
-
+    //  如果 loading 是true 就显示 loading 组件, 否则就显示 子组件  PrimaryLayout  私有组件
     if (loading) {
       return (
         <div className="loading" style={{ display: loading ? "flex" : "none" }}>

@@ -173,7 +173,9 @@ class PrimaryLayout extends Component {
     );
 
     return (
+      //  antd 中的 layout 布局  
       <Layout className="layout">
+        {/* 左侧 导航 */}
         <Sider trigger={null} collapsible collapsed={collapsed}>
           <div className="logo">
             <img src={logo} alt="logo" />
@@ -183,7 +185,9 @@ class PrimaryLayout extends Component {
           </div>
           <SiderMenu routes={routes} defaultOpenKey={route && route.path} />
         </Sider>
+        {/* 右侧内容区 */}
         <Layout className="site-layout">
+          {/* 头部 */}
           <Header className="site-layout-header">
             <span className="site-layout-container">
               {React.createElement(
@@ -208,6 +212,7 @@ class PrimaryLayout extends Component {
               </span>
             </span>
           </Header>
+          {/* 内容区 */}
           <Content className="site-layout-background">
             <div className="site-layout-header-wrap">
               {this.renderBreadcrumb(route)}

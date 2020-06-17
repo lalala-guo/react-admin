@@ -16,6 +16,8 @@ import {
 import { login, mobileLogin } from "@redux/actions/login";
 import { reqSendCode } from "@api/acl/oauth.js";
 
+import {CLIENT_ID} from "@conf/oauth"
+
 import "./index.less";
 
 const { TabPane } = Tabs;
@@ -30,6 +32,7 @@ function LoginForm({ login, mobileLogin, history }) {
   const [, setCountingDownTime] = useState(0);
   const [activeKey, setActiveKey] = useState("password");
 
+  //   点击  Tab 跳转
   const handleTabChange = (key) => {
     setActiveKey(key);
   };
@@ -57,14 +60,12 @@ function LoginForm({ login, mobileLogin, history }) {
     //  手机号   登录
     form.validateFields(["mobile", "code", "rem"]).then(async (values) => {
       const { mobile, code, rem } = values;
-      // console.log(values);
 
       const token = await mobileLogin(mobile, code);
-      // console.log(token);
 
-      // 记住密码
+      // 记住密码   保存token到本地  刷新不会重新登录
       if (rem) {
-        localStorage.getItem("user_token", token);
+        localStorage.setItem("user_token", token);
       }
       // 跳到首页
       history.replace("/");
@@ -104,6 +105,15 @@ function LoginForm({ login, mobileLogin, history }) {
         message.success("验证码发送成功");
       });
   };
+
+  //  第三方登录  跳转GitHub
+  const goGitHub = () => {
+    // 通过 window.location.href 进行跳转  
+    //   地址 https://github.com/login/oauth/authorize
+    //   参数  CLIENT_ID  引入  config 定义
+    window.location.href=`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}`
+  }
+
 
   return (
     <>
@@ -208,7 +218,7 @@ function LoginForm({ login, mobileLogin, history }) {
           <div className="login-type-reg">
             <div className="login-type">
               <span>其他登录方式</span>
-              <GithubOutlined />
+              <GithubOutlined onClick={goGitHub}/>
               <WechatOutlined />
               <QqOutlined />
             </div>

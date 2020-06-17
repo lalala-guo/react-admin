@@ -11,7 +11,6 @@ export const mobileLogin = (mobile, code) => {
       // console.log(mobile, code)
       dispatch(loginSuccessSync(token))
       // console.log(token);
-      
       return token
     })
   }
@@ -20,7 +19,7 @@ export const mobileLogin = (mobile, code) => {
 /**
  * 登陆
  */
-const loginSuccessSync = user => ({
+export const loginSuccessSync = user => ({
   type: LOGIN_SUCCESS,
   data: user
 });

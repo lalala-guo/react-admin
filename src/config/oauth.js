@@ -1,0 +1,2 @@
+const CLIENT_ID = "fe39684361620d7fe72f"
+export {CLIENT_ID}
