@@ -46,19 +46,14 @@
 */
 
 import React, { Component } from "react";
-import { Layout, Menu, Breadcrumb } from "antd";
-import {
-  DesktopOutlined,
-  PieChartOutlined,
-  FileOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { Menu} from "antd";
+
 import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 
 import icons from "@conf/icons";
 
+import defaultRoutes from "@conf/routes";
 const { SubMenu } = Menu;
 @withRouter
 @connect((state) => ({
@@ -70,7 +65,8 @@ class SideMenu extends Component {
     // 遍历 permissionList  并判断是否 含有children属性children是否有值 来确定是以及菜单还是二级菜单
     // 通过 hidden 的值 来过滤掉 不需要展示的数据 例如 按钮
     // console.log(menulist);
-
+    console.log(menulist);
+    
     return menulist.map((menu) => {
       // 获取数据
       const { path, name, children, icon, hidden } = menu;
@@ -109,7 +105,7 @@ class SideMenu extends Component {
       permissionList,
       location: { pathname },
     } = this.props;
-    console.log(pathname);
+    // console.log(pathname);
     
     return (
       <Menu
@@ -120,11 +116,7 @@ class SideMenu extends Component {
       >
         {/* 静态数据   首页 */}
         {/* {this.renderMenu(defaultRoutes)} */}
-        {/* <Menu.Item key={defaultRoutes.path} >
-              <Link to={defaultRoutes.path}>
-                {defaultRoutes.name}
-              </Link>
-          </Menu.Item> */}
+       
         {/* 动态数据 */}
         {this.renderMenu(permissionList)}
       </Menu>

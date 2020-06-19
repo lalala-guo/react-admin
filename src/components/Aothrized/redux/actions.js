@@ -1,29 +1,33 @@
 import { reqGetMenu, reqGetUserInfo } from "@api/acl/login";
+
 import { GET_USER_INFO, GET_MENU } from "./constants";
-const getUserinfosync = (user) => ({
-    type: GET_USER_INFO,
-    data: user
-})
+
+// 获取用户信息
+const getUserinfoSync = (user) => ({
+  type: GET_USER_INFO,
+  data: user,
+});
 
 export const getUserinfo = () => {
-    return (dispath) => {
-        return reqGetUserInfo().then((response) => {
-            dispath(getUserinfosync(response))
-            return response
-        })
-    }
-}
+  return (dispatch) => {
+    return reqGetUserInfo().then((response) => {
+      dispatch(getUserinfoSync(response));
+      return response;
+    });
+  };
+};
 
-const getMenusync = (permissionList) => ({
-    type: GET_MENU,
-    data: permissionList
-})
+// 获取权限列表数据 / 私有路由表
+const getMenuSync = (permissionList) => ({
+  type: GET_MENU,
+  data: permissionList,
+});
 
 export const getMenu = () => {
-    return (dispath) => {
-        return reqGetMenu().then((response) => {
-            dispath(getMenusync(response.permissionList))
-            return response.permissionList
-        })
-    }
-}
+  return (dispatch) => {
+    return reqGetMenu().then((response) => {
+      dispatch(getMenuSync(response && response.permissionList));
+      return response && response.permissionList;
+    });
+  };
+};

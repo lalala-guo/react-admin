@@ -7,16 +7,16 @@ import { getUserinfo, getMenu } from './redux'
 @connect(null, { getUserinfo, getMenu })
  class Authrized extends Component {
     state = {
-        isLoading: true
+        isLoading: false
     }
     componentDidMount(){
-        const { getUserinfo, getMenu } = this.props
-        const promises = [ getUserinfo(), getMenu() ]
-        Promise.all(promises).then(() => {
-            this.setState({
-                isLoading: false
-            })
-        })
+        // const { getUserinfo, getMenu } = this.props
+        // const promises = [ getUserinfo(), getMenu() ]
+        // Promise.all(promises).then(() => {
+        //     this.setState({
+        //         isLoading: false
+        //     })
+        // })
     }
     render() {
         const {isLoading} = this.state

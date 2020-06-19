@@ -3,7 +3,7 @@
 import React, { Component, Suspense } from 'react'
 import { Route } from 'react-router-dom'
 import { Switch } from 'antd'
-import constantRoutes from '@conf/routes'
+import {constantRoutes} from '@conf/routes'
 
 // import loading from '@src/loading'
 const loading = <div>loading....</div>
