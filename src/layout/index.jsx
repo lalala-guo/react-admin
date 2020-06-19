@@ -6,11 +6,12 @@ import Aothrized from '@comps/Aothrized'
 import PrimaryLayout from './PrimaryLayout'
 import PublicLayout from './PublicLayout'
 
+import "@assets/css/reset.css"
 @connect((state) => ({token: state.token}), null)
 class Layout extends Component {
      render() {
-        const token = this.props
-        return token ? <Aothrized /> : <PublicLayout />
+        const {token} = this.props
+        return token ? <Aothrized><PrimaryLayout /></Aothrized> : <PublicLayout />
     }
 }
 export default Layout

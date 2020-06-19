@@ -10,18 +10,19 @@ import { getUserinfo, getMenu } from './redux'
         isLoading: false
     }
     componentDidMount(){
-        // const { getUserinfo, getMenu } = this.props
-        // const promises = [ getUserinfo(), getMenu() ]
-        // Promise.all(promises).then(() => {
-        //     this.setState({
-        //         isLoading: false
-        //     })
-        // })
+        const { getUserinfo, getMenu } = this.props
+        const promises = [ getUserinfo(), getMenu() ]
+        Promise.all(promises).then(() => {
+            this.setState({
+                isLoading: false
+            })
+        })
+        
     }
     render() {
         const {isLoading} = this.state
         return (
-                isLoading ? <Loading /> : <PrimaryLayout />
+                isLoading ? <Loading /> : this.props.children
         )
     }
 }

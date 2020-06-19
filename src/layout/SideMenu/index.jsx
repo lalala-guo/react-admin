@@ -53,8 +53,9 @@ import { Link, withRouter } from "react-router-dom";
 
 import icons from "@conf/icons";
 
-import defaultRoutes from "@conf/routes";
+import {defaultRoutes} from "@conf/routes";
 const { SubMenu } = Menu;
+
 @withRouter
 @connect((state) => ({
   permissionList: state.user.permissionList,
@@ -105,7 +106,7 @@ class SideMenu extends Component {
       permissionList,
       location: { pathname },
     } = this.props;
-    // console.log(pathname);
+    console.log(permissionList);
     
     return (
       <Menu
@@ -115,7 +116,7 @@ class SideMenu extends Component {
         mode="inline"
       >
         {/* 静态数据   首页 */}
-        {/* {this.renderMenu(defaultRoutes)} */}
+        {this.renderMenu(defaultRoutes)}
        
         {/* 动态数据 */}
         {this.renderMenu(permissionList)}

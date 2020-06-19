@@ -11,7 +11,7 @@ import { withRouter } from "react-router-dom";
 
 import SideMenu from "../SideMenu";
 
-import {defaultRoutes} from "@conf/routes";
+import { defaultRoutes } from "@conf/routes";
 import AuthorizedRouter from "@comps/Aothrized/AuthorizedRouter";
 import logo from "@assets/images/logo.png";
 import "./index.less";
@@ -89,6 +89,7 @@ class PrimaryLayout extends Component {
     if (!currentRoute) {
       // 再去找动态请求私有路由
       currentRoute = this.getCurrentRoute(user.permissionList, pathname);
+      console.log(user);
     }
 
     return (
@@ -122,7 +123,14 @@ class PrimaryLayout extends Component {
           </Header>
           <Content>
             <div className="layout-container">
-              123
+              {currentRoute.children && (
+                <Breadcrumb>
+                  <Breadcrumb.Item>{currentRoute.name}</Breadcrumb.Item>
+                  <Breadcrumb.Item>
+                    {currentRoute.children.name}
+                  </Breadcrumb.Item>
+                </Breadcrumb>
+              )}
               <h3>
                 {currentRoute.children
                   ? currentRoute.children.name
@@ -133,7 +141,7 @@ class PrimaryLayout extends Component {
               className="site-layout-background"
               style={{ padding: 24, minHeight: 360 }}
             >
-              {/* <AuthorizedRouter permissionList={user.permissionList} /> */}
+              <AuthorizedRouter permissionList={user.permissionList} />
             </div>
           </Content>
           <Footer style={{ textAlign: "center" }}>
