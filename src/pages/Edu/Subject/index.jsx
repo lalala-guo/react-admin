@@ -14,6 +14,7 @@ import {
   updateSubject,
 } from "./redux/actions";
 import { reqDelSubject } from "@api/edu/subject";
+import { filterPermissions } from "@utils/tools";
 import "./index.less";
 
 const { confirm } = Modal;
@@ -21,6 +22,10 @@ const { confirm } = Modal;
 @connect(
   (state) => ({
     subjectList: state.subjectList,
+    permissionValueList: filterPermissions(
+      state.user.permissionValueList,
+      "subject"
+    )
   }),
   { getSubjectList, getSubsubjectList, updateSubject }
 )
@@ -174,7 +179,7 @@ class Subject extends Component {
   };
 
   render() {
-    const { subjectList } = this.props;
+    const { subjectList, permissionValueList } = this.props;
     const { expandedRowKeys, current, pageSize } = this.state;
     const columns = [
       {
@@ -255,7 +260,7 @@ class Subject extends Component {
 
     return (
       <div className="subject">
-        <Button
+        {permissionValueList["subject"] && <Button
           type="primary"
           className="subject-btn"
           style={{ marginBottom: "20px" }}
@@ -263,7 +268,8 @@ class Subject extends Component {
         >
           <PlusOutlined />
           新建
-        </Button>
+        </Button>}
+        
         <Table
           columns={columns}
           // expandable内部会将children 作为默认值 并展开

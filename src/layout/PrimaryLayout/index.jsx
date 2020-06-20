@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { matchPath } from "react-router";
 
 import { Layout, Breadcrumb } from "antd";
 import {
@@ -58,15 +59,39 @@ class PrimaryLayout extends Component {
         // 遍历children
         for (let j = 0; j < children.length; j++) {
           const item = children[j];
+          
+          // 删除按钮是没有路径，不需要处理~
+          // 过滤删除按钮
+          if (!item.path) continue;
+
           // 拼路径  父级路径 + 子路径
           const currentPath = route.path + item.path;
-          // 如果 currentPath 与 pathname相等
-          if (currentPath === pathname) {
+          const currentRoute = {
+            ...item,
+            path: currentPath,
+          };
+          /*
+            currentPath acl/user/update/:id
+            pathname /acl/user/update/5ee9af3b08cbda2ab083f906
+          */
+          // matchPath(当前路由路径, 路由配置对象) 返回值是布尔值
+          // 代表当前路由路径有没有匹配上路由~
+          const match = matchPath(pathname, currentRoute);
+
+          if (match) {
             return {
               ...route,
-              children: item,
+              children: currentRoute,
             };
           }
+
+          // // 如果 currentPath 与 pathname相等
+          // if (currentPath === pathname) {
+          //   return {
+          //     ...route,
+          //     children: item,
+          //   };
+          // }
         }
       }
     }
